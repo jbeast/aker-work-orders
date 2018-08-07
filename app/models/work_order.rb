@@ -284,11 +284,9 @@ class WorkOrder < ApplicationRecord
   end
 
   def module_choices
-    module_choices = []
-    WorkOrderModuleChoice.where(work_order_id: id).order(:position).pluck(:aker_process_modules_id).each do |id|
-      module_choices.push(Aker::ProcessModule.find(id).name)
+    WorkOrderModuleChoice.where(work_order_id: id).order(:position).pluck(:aker_process_modules_id).map do |id|
+      Aker::ProcessModule.find(id).name
     end
-    module_choices
   end
 
   def validate_module_names(module_names)

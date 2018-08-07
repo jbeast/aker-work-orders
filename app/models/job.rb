@@ -29,7 +29,6 @@ class Job < ApplicationRecord
   has_many :work_order_module_choices, through: :work_order
 
   validates :work_order, presence: true
-  validates :uuid, presence: true
 
   validate :status_ready_for_update
 
