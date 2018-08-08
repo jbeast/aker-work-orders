@@ -39,7 +39,7 @@ module WorkOrderSplitter
 
   protected
 
-    # Expects method to yield a list of material ids
+    # Expects template method to yield a list of material ids
     def splits
       raise NotImplementedError
     end
