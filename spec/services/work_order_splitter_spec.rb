@@ -26,7 +26,7 @@ RSpec.describe 'WorkOrderSplitter' do
 
   let(:work_order) { create(:work_order) }
 
-  let(:splitter) { WorkOrderSplitter::Splitter.new(work_order: work_order) }
+  let(:splitter) { WorkOrderSplitter::Splitter.new }
 
   before :each do
 
@@ -60,7 +60,7 @@ RSpec.describe 'WorkOrderSplitter' do
   describe '#split' do
 
     it 'creates a Job for each split' do
-      expect { splitter.split }.to change { work_order.jobs.count }.from(0).to(2)
+      expect { splitter.split(work_order) }.to change { work_order.jobs.count }.from(0).to(2)
       expect(work_order.jobs.first.input_set_uuid).to eql("28d7c0e2-9935-41b1-a806-e9b22324d41f")
       expect(work_order.jobs.second.input_set_uuid).to eql("28d7c0e2-9935-41b1-a806-e9b22324d42d")
     end
@@ -86,7 +86,7 @@ RSpec.describe 'WorkOrderSplitter' do
       end
 
       it 'doesn\'t create any Jobs (and deletes any created sets)' do
-        expect { splitter.split }.to change { work_order.jobs.count }.by(0)
+        expect { splitter.split(work_order) }.to change { work_order.jobs.count }.by(0)
       end
 
     end

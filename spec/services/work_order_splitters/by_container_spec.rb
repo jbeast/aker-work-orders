@@ -31,47 +31,26 @@ RSpec.describe 'WorkOrderSplitter::ByContainer' do
 
     # Request to get all Materials in Set
     stub_request(:get, "http://external-server:3000/api/v1/sets/#{set_uuid}?include=materials")
-      .with(
-        headers: {
-          'Accept'=>'application/vnd.api+json',
-          'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-          'Content-Type'=>'application/vnd.api+json',
-          'User-Agent'=>'Faraday v0.15.2'
-        }
-      )
       .to_return(status: 200, body: file_fixture("by_container_1.json").read, headers: { 'Content-Type' => 'application/vnd.api+json' })
 
     # Request to find all Containers for Materials in Set
     stub_request(:post, "http://external-server:5000/containers/search").
       with(
-        body: "{\"where\":{\"slots.material\":{\"$in\":#{first_container_uuids + second_container_uuids}}}}".gsub(" ", ""),
-        headers: {
-          'Accept'=>'application/json',
-          'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-          'Content-Type'=>'application/json',
-          'User-Agent'=>'Faraday v0.15.2'
-        }
+        body: "{\"where\":{\"slots.material\":{\"$in\":#{first_container_uuids + second_container_uuids}}}}".gsub(" ", "")
       )
       .to_return(status: 200, body: file_fixture("by_container_2.json").read, headers: { 'Content-Type' => 'application/vnd.api+json' })
 
     # Request for the schema
     stub_request(:get, "http://external-server:5000/containers/json_schema")
-      .with(
-        headers: {
-          'Accept'=>'application/json',
-          'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3',
-          'Content-Type'=>'application/json',
-          'User-Agent'=>'Faraday v0.15.2'
-        })
       .to_return(status: 200, body: file_fixture("container_schema.json").read, headers: { 'Content-Type' => 'application/vnd.api+json' })
 
-    @bc = WorkOrderSplitter::ByContainer.new(work_order: work_order)
+    @bc = WorkOrderSplitter::ByContainer.new
   end
 
   describe '#splits' do
 
     it 'yields materials by container' do
-      expect { |b| @bc.splits(&b) }.to yield_successive_args(first_container_uuids, second_container_uuids)
+      expect { |b| @bc.splits(work_order.decorate, &b) }.to yield_successive_args(first_container_uuids, second_container_uuids)
     end
 
   end

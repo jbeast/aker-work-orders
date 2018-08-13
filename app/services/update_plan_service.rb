@@ -420,6 +420,10 @@ private
     end
     work_order = WorkOrder.find(order_id)
 
+    if (work_order.jobs.size == 0)
+      work_order_splitter.split(work_order)
+    end
+
     if work_order_dispatcher.dispatch(work_order)
       return true
     else
@@ -457,6 +461,10 @@ private
 
   def work_order_dispatcher
     WorkOrderDispatcher.new(serializer: WorkOrderSerializer)
+  end
+
+  def work_order_splitter
+    WorkOrderSplitter::ByContainer.new
   end
 
 end

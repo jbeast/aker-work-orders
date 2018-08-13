@@ -92,7 +92,7 @@ RSpec.describe JobDecorator do
     end
   end
 
-  describe '#set=' do
+  describe '#input_set=' do
 
     before do
       decorated_job.input_set = set
@@ -104,6 +104,22 @@ RSpec.describe JobDecorator do
 
     it 'sets the @input_set instance variable' do
       expect(decorated_job.input_set).to eq(set)
+    end
+
+  end
+
+  describe '#create_input_set' do
+
+    before do
+      stub_request(:post, "http://external-server:3000/api/v1/sets")
+        .with(body: "{\"data\":{\"type\":\"sets\",\"attributes\":{\"name\":\"My Input Set\"}}}")
+        .to_return(status: 201, body: file_fixture("set.json"), headers: { 'Content-Type': 'application/vnd.api+json'})
+
+      decorated_job.create_input_set(name: 'My Input Set')
+    end
+
+    it 'assigns the new Set to #input_set' do
+      expect(decorated_job.input_set).to be_instance_of(SetClient::Set)
     end
 
   end
