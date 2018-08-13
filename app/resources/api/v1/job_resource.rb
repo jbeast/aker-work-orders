@@ -6,8 +6,8 @@ module Api
     class JobResource < JSONAPI::Resource
       attributes :uuid, :container_uuid, :work_order_id, :started, :completed, :cancelled, :broken,
                  :date_requested, :requested_by, :project_and_costcode, :product,
-                 :process_modules, :batch_size, :work_plan_comment, :priority, :barcode, :process,
-                 :set_uuid
+                 :process_modules, :work_plan_comment, :batch_size, :priority, :barcode, :process,
+                 :set_uuid, :input_set_uuid
 
       paginator :paged
 
@@ -111,6 +111,10 @@ module Api
 
       def barcode
         model.container.barcode
+      end
+
+      def input_set_uuid
+        model&.input_set_uuid
       end
 
       def set_uuid

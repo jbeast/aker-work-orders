@@ -29,6 +29,8 @@ module WorkOrderSplitter
             # Add the Materials to the Input Set
             job.input_set.set_materials(material_ids)
 
+            after_create(job)
+
             jobs << job
           end
 
@@ -48,6 +50,10 @@ module WorkOrderSplitter
     # Expects template method to yield a list of material ids
     def splits(work_order)
       raise NotImplementedError
+    end
+
+    # Doesn't have to be overidden, but helpful right now
+    def after_create(job)
     end
 
   private
