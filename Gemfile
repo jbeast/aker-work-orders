@@ -45,6 +45,7 @@ gem 'webpacker-react', '~> 0.3.2'
 gem 'wicked'
 gem 'health_check'
 gem 'bootsnap'
+gem 'draper'
 
 ###
 # Sanger gems

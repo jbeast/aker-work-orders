@@ -1,4 +1,4 @@
-# Little abstract class for splitting Work Orders into Jobs
+# Little "abstract" class for splitting Work Orders into Jobs
 module WorkOrderSplitter
   class Splitter
 

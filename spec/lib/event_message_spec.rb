@@ -6,11 +6,6 @@ require 'support/test_services_helper'
 RSpec.describe 'EventMessage' do
   include TestServicesHelper
 
-  let(:fake_uuid) { 'my_fake_uuid' }
-  before do
-    allow(SecureRandom).to receive(:uuid).and_return(fake_uuid)
-  end
-
   describe 'WorkOrderEventMessage' do
     describe '#initialize' do
       it 'is initalized with a param object' do
@@ -77,17 +72,23 @@ RSpec.describe 'EventMessage' do
         }
       end
 
-      let(:drs) { double(:project, uuid: SecureRandom.uuid, study_code: 1996, name: 'test project') }
+      let(:drs) { create(:data_release_strategy) }
 
       let(:plan) do
-        pl = build(:work_plan, product: product, project_id: project.id, comment: first_comment, data_release_strategy_id: drs.uuid)
+        pl = create(:work_plan, product: product, project_id: project.id, comment: first_comment, data_release_strategy: drs)
+        pl = pl.decorate
         allow(pl).to receive(:project).and_return(project)
         allow(pl).to receive(:data_release_strategy).and_return(drs)
         pl
       end
 
+      let(:cancelled_job) { create(:cancelled_job) }
+      let(:completed_job) { create(:completed_job) }
+
       let(:work_order) do
-        wo = build(:work_order, status: WorkOrder.ACTIVE, work_plan: plan, process: process)
+        wo = create(:work_order, status: WorkOrder.ACTIVE, work_plan: plan, process: process, jobs: [cancelled_job, completed_job])
+        wo = wo.decorate
+        allow(wo).to receive(:work_plan).and_return plan
         allow(wo).to receive(:id).and_return 123
         allow(wo).to receive(:total_cost).and_return 50
         allow(wo).to receive(:set).and_return set
@@ -118,7 +119,7 @@ RSpec.describe 'EventMessage' do
         end
 
         it 'should have the correct uuid' do
-          expect(json['uuid']).to eq(fake_uuid)
+          expect(json['uuid']).to be_a_uuid
         end
 
         it 'should have the correct user identifier' do
@@ -210,15 +211,9 @@ RSpec.describe 'EventMessage' do
           expect(metadata['num_new_materials']).to eq(finished_set.meta['size'])
         end
         it 'should have the correct num of completed jobs' do
-          where_double = double('where')
-          allow(where_double).to receive(:not).and_return [1]
-          allow(work_order.jobs).to receive(:where).and_return where_double
           expect(metadata['num_completed_jobs']).to eq(1)
         end
         it 'should have the corrent num of cancelled jobs' do
-          where_double = double('where')
-          allow(where_double).to receive(:not).and_return [1]
-          allow(work_order.jobs).to receive(:where).and_return where_double
           expect(metadata['num_cancelled_jobs']).to eq(1)
         end
       end
@@ -254,7 +249,7 @@ RSpec.describe 'EventMessage' do
         end
 
         it 'should contain the uuid' do
-          expect(json['uuid']).to eq(fake_uuid)
+          expect(json['uuid']).to be_a_uuid
         end
 
         it 'should have an empty array of roles' do
